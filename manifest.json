@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "locale": "pt_BR.cp1252",
+  "metadata": {
+    "appmode": "python-shiny",
+    "entrypoint": "app:app"
+  },
+  "python": {
+    "version": "3.12.10",
+    "package_manager": {
+      "name": "pip",
+      "version": "25.0.1",
+      "package_file": "requirements.txt"
+    }
+  },
+  "files": {
+    "requirements.txt": {
+      "checksum": "331933ed44eefaa263596cdfc14fd53f"
+    },
+    "app.py": {
+      "checksum": "d7c5c8d96be5548c37be5eed45f16793"
+    },
+    "data.json": {
+      "checksum": "768f2257bd48b0b6763943917bf0ca1b"
+    },
+    "www/app.js": {
+      "checksum": "bad5cd60f52773a9eb9d22860e386a18"
+    },
+    "www/plotly.min.js": {
+      "checksum": "df451d422b2c126760676411b5cf443a"
+    },
+    "www/style.css": {
+      "checksum": "686f60c14d8332c9eb019c8768e160c0"
+    }
+  }
+}
