@@ -64,7 +64,16 @@
         })),
         y: [0, 100], ytitle: "% da Educação",
       },
-      { // 4 quintil
+      { // 4 municípios atendidos
+        kind: "anos|group|mun",
+        titulo: "Municípios que receberam emendas", sub: "Nº de municípios com valor empenhado no ano (de 5.570) — só emendas com município identificado",
+        data: [["total", "Todas as emendas", "#1f3a5f"], ["edu", "Educação", "#c8412b"], ["basica", "Educação básica", "#2a9d8f"]].map(([k, n, c]) => ({
+          type: "bar", name: n, x: xa, y: D.municipios_com_emenda[k], marker: { color: c },
+          hovertemplate: "%{fullData.name}: %{y:,d} municípios<extra></extra>",
+        })),
+        y: [0, Math.max(...D.municipios_com_emenda.total) * 1.08], ytitle: "Nº de municípios", stack: false, legenda: true,
+      },
+      { // 5 quintil
         kind: "q6|group|mi",
         titulo: "Emendas de Educação por quintil do IFEM · " + ano, sub: "R$ milhões nominais — só emendas com município identificado",
         data: [{ type: "bar", x: Q6, y: P.edu_quintil.map(v => v / 1e6), marker: { color: "#1f3a5f" },
@@ -102,7 +111,7 @@
 
   /* ---------- textos de cada passo ---------- */
   function textos() {
-    const a = i25(), P = D.por_ano_quintil[ano];
+    const a = i25(), P = D.por_ano_quintil[ano], M = D.municipios_com_emenda;
     const compl = D.anos.map((_, i) => i).filter(i => D.anos[i] <= 2025);
     const sh = D.edu.map((v, i) => (v / D.total[i]) * 100);
     const iMin = compl.reduce((m, i) => (sh[i] < sh[m] ? i : m), compl[0]);
@@ -120,6 +129,7 @@
       { t: "Quanto vai para a Educação", h: `<p>Filtrando a função Educação, o valor empenhado em 2025 cai para <b>${bi(D.edu[a])}</b>. As mesmas barras, na mesma escala, ficam bem menores.</p>` },
       { t: "Que fatia isso representa", h: `<p>A Educação respondeu por <b>${pc(sh[a])}</b> das emendas de 2025.</p><p>Entre 2014 e 2025, a fatia foi de ${pc(sh[iMin])} (${D.anos[iMin]}) a ${pc(sh[iMax])} (${D.anos[iMax]}).</p><p class="aviso">* 2026 é um ano parcial.</p>` },
       { t: "O que a Educação financia", h: `<p>Em 2025, <b>${pc(g25("Educação básica"))}</b> das emendas de Educação foram para a educação básica e <b>${pc(g25("Ensino superior"))}</b> para o ensino superior.</p><p>Cada barra soma 100% do que foi empenhado em Educação no ano.</p>` },
+      { t: "Quantos municípios recebem", h: `<p>Em <b>2025</b>, <b>${nf(M.total[a], 0)}</b> municípios receberam alguma emenda com município identificado, <b>${nf(M.edu[a], 0)}</b> receberam emendas de Educação e <b>${nf(M.basica[a], 0)}</b> de educação básica.</p><p class="aviso">A maior parte do valor de Educação não tem município identificado, então estas contagens são um piso.</p>` },
       { t: "Educação por quintil do IFEM", f: 1, h: `<p>Dividimos os municípios em cinco grupos iguais pelo IFEM. Use o filtro para trocar o ano.</p><p>Em ${ano}, o <b>${Q6[iq]}</b> concentrou a maior parte das emendas com município identificado: <b>${mi(P.edu_quintil[iq])}</b>.</p>${aviso}` },
       { t: "Quintil e subfunção", f: 1, h: `<p>Cada barra mostra em que o dinheiro do quintil foi empenhado em ${ano}.</p>${aviso}` },
       { t: "Só educação básica", f: 1, h: `<p>Olhando apenas a educação básica em ${ano}, o <b>${Q6[ib]}</b> recebeu mais: <b>${mi(P.basica_quintil[ib])}</b>.</p>${aviso}` },
@@ -133,7 +143,7 @@
     return {
       barmode: s.stack ? "stack" : "group", paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
       font: { family: "system-ui, sans-serif", color: ink, size: 13 }, separators: ",.",
-      margin: { l: 58, r: 12, t: 8, b: 48 }, showlegend: !!s.stack,
+      margin: { l: 58, r: 12, t: 8, b: 48 }, showlegend: !!(s.stack || s.legenda),
       legend: { orientation: "h", y: 1.02, yanchor: "bottom", x: 0 },
       xaxis: { fixedrange: true, type: "category", tickvals: s.data[0].x, tickfont: { color: mut, size: 12 }, tickangle: 0 },
       yaxis: { fixedrange: true, range: s.y, gridcolor: line, zeroline: false, title: { text: s.ytitle, font: { size: 12, color: mut } }, tickfont: { color: mut } },
@@ -145,7 +155,7 @@
   function desenhar(idx) {
     const s = especs()[idx], el = document.getElementById("grafico"), meu = ++ticket;
     document.getElementById("titulo-grafico").innerHTML = `${s.titulo}<small>${s.sub}</small>`;
-    document.getElementById("fonte").textContent = idx < 4
+    document.getElementById("fonte").textContent = idx < 5
       ? "Fonte: Portal da Transparência (CGU). Valores empenhados, deflacionados pelo IPCA."
       : "Fonte: Portal da Transparência (CGU), IFEM (FNP) e Censo Escolar (INEP).";
     const quadros = () => ({ data: s.data.map(t => ({ x: t.x, y: t.y, text: t.text })), traces: s.data.map((_, i) => i), layout: { yaxis: { range: s.y } } });

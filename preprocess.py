@@ -55,6 +55,12 @@ out = {
     "edu_grupo": {g: por_ano(edu[edu.grupo == g]) for g in GRUPOS},
 }
 
+# municípios com emenda empenhada (só emendas com município identificado)
+def n_mun(df):
+    g = df[df.mun.notna()].groupby(["ano_emenda", "mun"]).valor_empenhado.sum()
+    return g[g > 0].groupby("ano_emenda").size().reindex(anos, fill_value=0).tolist()
+out["municipios_com_emenda"] = {"total": n_mun(e), "edu": n_mun(edu), "basica": n_mun(edu[edu.subfuncao == BASICA])}
+
 # quintis IFEM + matrículas públicas
 q = pd.read_excel(TRAT / "ifem.xlsx")
 mat = pd.read_excel(TRAT / "matriculas.xlsx").set_index("cod_ibge")
